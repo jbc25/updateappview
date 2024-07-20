@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
-//    id("maven-publish")
+    id("maven-publish")
 }
 
 android {
@@ -49,20 +49,20 @@ dependencies {
 }
 
 
-//afterEvaluate {
-//    publishing {
-//        publications {
-//            register("release", MavenPublication::class) {
-//
-//                // Applies the component for the release build variant.
-//                // NOTE : Delete this line code if you publish Native Java / Kotlin Library
-//                from(components["release"])
-//
-//                groupId = "com.triskelapps"
-//                artifactId = "updateappview"
-//                version = "0.0.3"
-//
-//            }
-//        }
-//    }
-//}
+afterEvaluate {
+    publishing {
+        publications {
+            register("release", MavenPublication::class) {
+
+                // Applies the component for the release build variant.
+                // NOTE : Delete this line code if you publish Native Java / Kotlin Library
+                from(components["release"])
+
+                groupId = "com.triskelapps"
+                artifactId = "updateappview"
+                version = "0.0.3"
+
+            }
+        }
+    }
+}

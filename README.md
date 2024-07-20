@@ -1,7 +1,6 @@
 ## Update App View
 
-[![Release](https://jitpack.io/v/com.triskelapps/updateappview.svg)]
-(https://jitpack.io/#com.triskelapps/updateappview)
+[![Release](https://jitpack.io/v/com.triskelapps/updateappview.svg)](https://jitpack.io/#com.triskelapps/updateappview)
 
 A very simple way to let Android users update your app
 
