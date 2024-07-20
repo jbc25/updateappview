@@ -36,8 +36,9 @@ android {
 
 dependencies {
 
-    implementation(project(":updateappview"))
+//    implementation(project(":updateappview"))
 
+    implementation("com.github.jbc25:UpdateAppView:release-0.0.2-3")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

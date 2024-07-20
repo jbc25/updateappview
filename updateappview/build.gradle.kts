@@ -6,12 +6,6 @@ plugins {
     id("maven-publish")
 }
 
-//java {
-//    toolchain {
-//        languageVersion.set(JavaLanguageVersion.of(18))
-//    }
-//}
-
 android {
     namespace = "com.triskelapps.updateappview"
     compileSdk = 34
@@ -70,11 +64,5 @@ afterEvaluate {
 
             }
         }
-    }
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "1.8"
     }
 }
