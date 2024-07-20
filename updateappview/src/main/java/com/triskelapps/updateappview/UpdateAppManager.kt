@@ -124,7 +124,7 @@ class UpdateAppManager(private val context: Context) {
                     .setAllowAssetPackDeletion(true).build()
 
                 if (context is Activity) {
-                    appUpdateManager.startUpdateFlow(appUpdateInfo!!, context as Activity, options)
+                    appUpdateManager.startUpdateFlow(appUpdateInfo!!, context, options)
                 }
             } else {
                 openGooglePlay()

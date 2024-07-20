@@ -1,8 +1,16 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("maven-publish")
 }
+
+//java {
+//    toolchain {
+//        languageVersion.set(JavaLanguageVersion.of(18))
+//    }
+//}
 
 android {
     namespace = "com.triskelapps.updateappview"
@@ -62,5 +70,11 @@ afterEvaluate {
 
             }
         }
+    }
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }
