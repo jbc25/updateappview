@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("maven-publish")
 }
 
 android {
@@ -43,4 +44,19 @@ dependencies {
 
     implementation(libs.androidx.preference.ktx)
     implementation(libs.kpermissions)
+}
+
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+
+                groupId = "com.triskelapps"
+                artifactId = "updateappview"
+                version = "0.0.1"
+            }
+        }
+    }
 }
