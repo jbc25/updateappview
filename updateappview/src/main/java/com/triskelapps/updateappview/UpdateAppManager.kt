@@ -61,7 +61,7 @@ class UpdateAppManager(private val context: Context) {
             UpdateAppManager.notificationIcon = notificationIcon
             UpdateAppManager.updateBarStyle = updateBarStyle
 
-            sendRemoteLog("UpdateAppManager init")
+            //sendRemoteLog("UpdateAppManager init")
         }
 
         private fun scheduleAppUpdateCheckWork(
@@ -85,7 +85,7 @@ class UpdateAppManager(private val context: Context) {
                 ExistingPeriodicWorkPolicy.UPDATE, updateAppCheckWork
             ).state.observeForever {state: Operation.State ->
 
-                sendRemoteLog("Periodic work status: $state")
+                //sendRemoteLog("Periodic work status: $state")
             }
         }
     }

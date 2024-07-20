@@ -27,7 +27,7 @@ class UpdateAppCheckWorker(context: Context, workerParams: WorkerParameters) :
         prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val lastVersionNotified = prefs.getInt(PREF_LAST_VERSION_NOTIFIED, 0)
 
-        sendRemoteLog("Start worker. lastVersionNotified: $lastVersionNotified, version code: ${UpdateAppManager.VERSION_CODE}")
+        //sendRemoteLog("Start worker. lastVersionNotified: $lastVersionNotified, version code: ${UpdateAppManager.VERSION_CODE}")
 
         return if (lastVersionNotified < UpdateAppManager.VERSION_CODE) {
             checkAppUpdateAvailable()
@@ -39,10 +39,10 @@ class UpdateAppCheckWorker(context: Context, workerParams: WorkerParameters) :
 
     private suspend fun checkAppUpdateAvailable(): Result = suspendCoroutine { continuation ->
         updateAppManager.setUpdateAvailableListener {
-            sendRemoteLog("onUpdateAvailable. sending notification")
+            //sendRemoteLog("onUpdateAvailable. sending notification")
             prepareAndShowNotification() }
         updateAppManager.setFinishListener {
-            sendRemoteLog("onFinish")
+            //sendRemoteLog("onFinish")
             continuation.resume(Result.success()) }
         updateAppManager.checkUpdateAvailable()
     }

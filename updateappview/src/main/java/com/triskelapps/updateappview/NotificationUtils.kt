@@ -29,7 +29,7 @@ class NotificationUtils(val context: Context) {
             val notificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.notify(5, notification)
-            sendRemoteLog("Notification sent")
+            //sendRemoteLog("Notification sent")
         }
 
     }
