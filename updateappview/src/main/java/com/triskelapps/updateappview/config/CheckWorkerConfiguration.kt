@@ -2,7 +2,7 @@ package com.triskelapps.updateappview.config
 
 import java.util.concurrent.TimeUnit
 
-data class CheckWorkerConfiguration(
+data class CheckWorkerConfiguration @JvmOverloads constructor (
     val repeatInterval: Long = 8,
     val repeatIntervalTimeUnit: TimeUnit = TimeUnit.HOURS,
     val flexInterval: Long = 2,

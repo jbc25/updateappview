@@ -12,9 +12,8 @@ class App : Application() {
         super.onCreate()
 
 
-        val updateBarStyle: UpdateBarStyle =
-            UpdateBarStyle(R.color.black, R.color.white, R.style.TextBase)
-        val checkWorkerConfiguration: CheckWorkerConfiguration =
+        val updateBarStyle = UpdateBarStyle(R.color.black, R.color.white)
+        val checkWorkerConfiguration =
             CheckWorkerConfiguration(1, TimeUnit.HOURS, 30, TimeUnit.MINUTES)
         UpdateAppManager.init(
             this, BuildConfig.VERSION_CODE, R.mipmap.ic_launcher,
