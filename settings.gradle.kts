@@ -20,6 +20,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "UpdateAppView"
+rootProject.name = "SimpleAppUpdate"
 include(":app")
 include(":simpleappupdate")

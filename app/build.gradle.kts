@@ -11,8 +11,8 @@ android {
         applicationId = "com.triskelapps.updateappviewsample"
         minSdk = 21
         targetSdk = 34
-        versionCode = 112
-        versionName = "1.1.2"
+        versionCode = 117
+        versionName = "1.1.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

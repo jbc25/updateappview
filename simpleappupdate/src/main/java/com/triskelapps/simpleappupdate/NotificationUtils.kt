@@ -64,11 +64,11 @@ class NotificationUtils(private val context: Context) {
             val notifBuilder =
                 NotificationCompat.Builder(context, channelId).apply {
                     setSound(defaultSoundUri)
-                    setSmallIcon(SimpleAppUpdate.periodicCheckConfig!!.notificationStyle.notificationIcon)
+                    setSmallIcon(SimpleAppUpdate.notificationStyle!!.notificationIcon)
                     setAutoCancel(true)
                     setContentIntent(pendingIntent)
 
-                    SimpleAppUpdate.periodicCheckConfig!!.notificationStyle.notificationColor?.let { setColor(it) }
+                    SimpleAppUpdate.notificationStyle!!.notificationColor?.let { setColor(it) }
                 }
 
             return notifBuilder

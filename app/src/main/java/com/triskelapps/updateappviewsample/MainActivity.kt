@@ -22,6 +22,8 @@ class MainActivity : AppCompatActivity() {
         configureManualCheck()
 
         checkUpdateBarStyle(false)
+
+        binding.tvAppVersion.text = BuildConfig.VERSION_NAME
     }
 
     private fun configureManualCheck() {
@@ -44,9 +46,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        simpleAppUpdate.setFinishListener {
+        simpleAppUpdate.setErrorListener { error ->
+            binding.tvManualCheck.text = "Error: $error"
             binding.btnCheckForUpdate.setText(R.string.check_for_update)
             binding.btnCheckForUpdate.setOnClickListener { checkForUpdate() }
+
+        }
+
+        simpleAppUpdate.setFinishListener {
         }
 
         simpleAppUpdate.checkUpdateAvailable()

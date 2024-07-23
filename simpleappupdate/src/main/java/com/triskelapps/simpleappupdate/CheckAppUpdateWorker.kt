@@ -23,12 +23,16 @@ class CheckAppUpdateWorker(
     private val simpleAppUpdate = SimpleAppUpdate(context)
     private lateinit var prefs: SharedPreferences
 
+    companion object {
+        val VERSION_CODE = "version_code"
+    }
+
     override suspend fun doWork(): Result {
 
         prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val lastVersionNotified = prefs.getInt(PREF_LAST_VERSION_NOTIFIED, 0)
 
-        val versionCode = SimpleAppUpdate.periodicCheckConfig!!.versionCode // Worker only scheduled if this class is not null
+        val versionCode = inputData.getInt(VERSION_CODE, -1)
 
         sendRemoteLog("Start worker. lastVersionNotified: $lastVersionNotified, version code: $versionCode")
 
@@ -55,7 +59,9 @@ class CheckAppUpdateWorker(
     private fun prepareAndShowNotification() {
 
         NotificationUtils(applicationContext).showNotification(packageName)
-        prefs.edit().putInt(PREF_LAST_VERSION_NOTIFIED, SimpleAppUpdate.periodicCheckConfig!!.versionCode).apply()
+
+        val versionCode = inputData.getInt(VERSION_CODE, -1)
+        prefs.edit().putInt(PREF_LAST_VERSION_NOTIFIED, versionCode).apply()
     }
 
 }

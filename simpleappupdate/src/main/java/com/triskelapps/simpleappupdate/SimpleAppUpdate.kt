@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.work.Constraints
+import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.Operation
@@ -21,6 +22,7 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.triskelapps.simpleappupdate.config.WorkerConfig
 import com.triskelapps.simpleappupdate.config.Configuration
+import com.triskelapps.simpleappupdate.config.NotificationStyle
 import com.triskelapps.simpleappupdate.config.PeriodicCheckConfig
 import com.triskelapps.simpleappupdate.config.UpdateBarStyle
 
@@ -35,12 +37,13 @@ class SimpleAppUpdate(private val context: Context) {
     private val appUpdateManager: AppUpdateManager = AppUpdateManagerFactory.create(context)
     private var appUpdateInfo: AppUpdateInfo? = null
     private var onUpdateAvailable: () -> Unit = {}
+    private var onCheckUpdateError: (String) -> Unit = {}
     private var onCheckUpdateFinish: () -> Unit = {}
 
     companion object {
 
         var updateBarStyle: UpdateBarStyle? = null
-        var periodicCheckConfig: PeriodicCheckConfig? = null
+        var notificationStyle: NotificationStyle? = null
 
         @JvmStatic
         @JvmOverloads
@@ -48,18 +51,21 @@ class SimpleAppUpdate(private val context: Context) {
             updateBarStyle: UpdateBarStyle? = null,
             periodicCheckConfig: PeriodicCheckConfig? = null,
         ) {
+
             SimpleAppUpdate.updateBarStyle = updateBarStyle
-            SimpleAppUpdate.periodicCheckConfig = periodicCheckConfig
+            SimpleAppUpdate.notificationStyle = periodicCheckConfig?.notificationStyle
 
             sendRemoteLog("SimpleAppUpdate init")
+            sendRemoteLog(periodicCheckConfig.toString())
 
             periodicCheckConfig?.let {
-                scheduleAppUpdateCheckWork(periodicCheckConfig.context, periodicCheckConfig.workerConfig)
+                scheduleAppUpdateCheckWork(it.context, it.versionCode, it.workerConfig)
             }
         }
 
         private fun scheduleAppUpdateCheckWork(
             context: Context,
+            versionCode: Int,
             workerConfig: WorkerConfig
         ) {
             val constraints: Constraints = Constraints.Builder()
@@ -72,6 +78,7 @@ class SimpleAppUpdate(private val context: Context) {
                 workerConfig.flexInterval, workerConfig.flexIntervalTimeUnit,
             )
                 .setConstraints(constraints)
+                .setInputData(Data.Builder().putInt(CheckAppUpdateWorker.VERSION_CODE, versionCode).build())
                 .build()
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
@@ -96,6 +103,10 @@ class SimpleAppUpdate(private val context: Context) {
         this.onCheckUpdateFinish = updateFinishListener
     }
 
+    fun setErrorListener(onCheckUpdateError: (String) -> Unit = {}) {
+        this.onCheckUpdateError = onCheckUpdateError
+    }
+
     fun checkUpdateAvailable() {
 
         val appUpdateInfoTask: Task<AppUpdateInfo> = appUpdateManager.appUpdateInfo
@@ -109,6 +120,7 @@ class SimpleAppUpdate(private val context: Context) {
                     }
                 } else {
                     Log.e(TAG, "checkUpdateAvailable: ", task.exception)
+                    onCheckUpdateError(task.exception.toString())
                 }
 
                 onCheckUpdateFinish()

@@ -10,7 +10,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/simple_app_update_round_icon"
         android:supportsRtl="true"
-        android:theme="@style/Theme.UpdateAppView"
+        android:theme="@style/Theme.SimpleAppUpdate"
         tools:targetApi="31"
         android:name=".App">
         <activity
