@@ -1,4 +1,4 @@
-package com.triskelapps.updateappview
+package com.triskelapps.simpleappupdate
 
 import android.Manifest
 import android.app.Activity
@@ -7,40 +7,41 @@ import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.triskelapps.updateappview.databinding.ViewUpdateAppBinding
 import com.fondesa.kpermissions.extension.permissionsBuilder
-import com.fondesa.kpermissions.extension.send
+import com.triskelapps.simpleappupdate.databinding.ViewUpdateAppBinding
+import java.lang.IllegalStateException
 
-class UpdateAppView @JvmOverloads constructor(
+class SimpleAppUpdateView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
-    private var updateAppManager = UpdateAppManager(context)
+    private var simpleAppUpdate = SimpleAppUpdate(context)
     private var binding = ViewUpdateAppBinding.inflate(LayoutInflater.from(context), this, true)
 
     private val lifecycleObserver: LifecycleObserver = object : DefaultLifecycleObserver {
         override fun onResume(owner: LifecycleOwner) {
             super.onResume(owner)
 
-            updateAppManager.onResume()
+            simpleAppUpdate.onResume()
         }
     }
 
     init {
 
-        binding.btnUpdateApp.setOnClickListener { updateAppManager.onUpdateVersionClick() }
+        binding.btnUpdateApp.setOnClickListener { simpleAppUpdate.launchUpdate() }
         binding.btnCloseUpdateAppView.setOnClickListener { visibility = GONE }
 
-        UpdateAppManager.updateBarStyle?.let {
+        SimpleAppUpdate.updateBarStyle ?: throw IllegalStateException("SimpleAppUpdate not initialized. Call SimpleAppUpdate.init() before add SimpleAppUpdateView")
+
+        SimpleAppUpdate.updateBarStyle!!.let {
             binding.root.setBackgroundColor(ContextCompat.getColor(context, it.backgroundColor))
             binding.tvNewVersionAvailable.setTextColor(ContextCompat.getColor(context, it.foregroundElementsColor))
             binding.btnUpdateApp.setTextColor(ContextCompat.getColor(context, it.foregroundElementsColor))
@@ -51,6 +52,7 @@ class UpdateAppView @JvmOverloads constructor(
                 binding.btnUpdateApp.setTextAppearance(context, style)
             }
         }
+
 
         visibility = GONE
 
@@ -66,10 +68,12 @@ class UpdateAppView @JvmOverloads constructor(
                 permissionRequest.send()
             }
         }
-        updateAppManager.setUpdateAvailableListener { visibility = VISIBLE }
+        simpleAppUpdate.setUpdateAvailableListener { visibility = VISIBLE }
 
         if (context is Activity) {
             checkUpdateAvailable()
+        } else {
+            throw IllegalStateException("context is not an Activity")
         }
     }
 
@@ -92,10 +96,10 @@ class UpdateAppView @JvmOverloads constructor(
 
 
     private fun checkUpdateAvailable() {
-        updateAppManager.checkUpdateAvailable()
+        simpleAppUpdate.checkUpdateAvailable()
     }
 
     companion object {
-        private val TAG: String = UpdateAppView::class.java.simpleName
+        private val TAG: String = SimpleAppUpdateView::class.java.simpleName
     }
 }

@@ -32,12 +32,12 @@ android {
     }
 
     buildFeatures.buildConfig = true
+    viewBinding.isEnabled = true
 }
 
 dependencies {
 
-    implementation(project(":updateappview"))
-
+    implementation(project(":simpleappupdate"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

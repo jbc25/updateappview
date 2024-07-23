@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.triskelapps.updateappview"
+    namespace = "com.triskelapps.simpleappupdate"
     compileSdk = 34
 
     defaultConfig {
@@ -59,7 +59,7 @@ afterEvaluate {
                 from(components["release"])
 
                 groupId = "com.triskelapps"
-                artifactId = "updateappview"
+                artifactId = "simpleappupdate"
                 version = "0.0.6"
 
             }

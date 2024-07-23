@@ -1,4 +1,4 @@
-package com.triskelapps.updateappview.config
+package com.triskelapps.simpleappupdate.config
 
 import androidx.annotation.ColorRes
 import androidx.annotation.StyleRes

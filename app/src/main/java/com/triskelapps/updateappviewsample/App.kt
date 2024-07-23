@@ -1,23 +1,26 @@
 package com.triskelapps.updateappviewsample
 
 import android.app.Application
-import com.triskelapps.updateappview.UpdateAppManager
-import com.triskelapps.updateappview.config.CheckWorkerConfiguration
-import com.triskelapps.updateappview.config.UpdateBarStyle
+import com.triskelapps.simpleappupdate.SimpleAppUpdate
+import com.triskelapps.simpleappupdate.config.NotificationStyle
+import com.triskelapps.simpleappupdate.config.PeriodicCheckConfig
+import com.triskelapps.simpleappupdate.config.UpdateBarStyle
+import com.triskelapps.simpleappupdate.config.WorkerConfig
 import java.util.concurrent.TimeUnit
 
 class App : Application() {
-
     override fun onCreate() {
         super.onCreate()
 
-
         val updateBarStyle = UpdateBarStyle(R.color.black, R.color.white)
-        val checkWorkerConfiguration =
-            CheckWorkerConfiguration(1, TimeUnit.HOURS, 30, TimeUnit.MINUTES)
-        UpdateAppManager.init(
-            this, BuildConfig.VERSION_CODE, R.mipmap.ic_launcher,
-            updateBarStyle, checkWorkerConfiguration
+
+        val notificationStyle = NotificationStyle(R.mipmap.simple_app_update_notif_icon, R.color.red)
+        val workerConfig =
+            WorkerConfig(1, TimeUnit.HOURS, 30, TimeUnit.MINUTES)
+        val periodicCheckConfig = PeriodicCheckConfig (
+            this, BuildConfig.VERSION_CODE, notificationStyle, workerConfig
         )
+
+        SimpleAppUpdate.init(updateBarStyle, periodicCheckConfig)
     }
 }

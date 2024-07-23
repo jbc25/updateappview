@@ -1,4 +1,4 @@
-package com.triskelapps.updateappview
+package com.triskelapps.simpleappupdate
 
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
@@ -14,9 +14,10 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 
 
-class NotificationUtils(val context: Context) {
+class NotificationUtils(private val context: Context) {
 
-    val channelId = "channel_update_app"
+    private val channelId = "channel_update_app"
+    private val notificationId = 5
 
     fun showNotification(packageName: String) {
 
@@ -28,8 +29,8 @@ class NotificationUtils(val context: Context) {
             val notification = build()
             val notificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.notify(5, notification)
-            //sendRemoteLog("Notification sent")
+            notificationManager.notify(notificationId, notification)
+            sendRemoteLog("Notification sent")
         }
 
     }
@@ -63,9 +64,11 @@ class NotificationUtils(val context: Context) {
             val notifBuilder =
                 NotificationCompat.Builder(context, channelId).apply {
                     setSound(defaultSoundUri)
-                    setSmallIcon(UpdateAppManager.notificationIcon)
+                    setSmallIcon(SimpleAppUpdate.periodicCheckConfig!!.notificationStyle.notificationIcon)
                     setAutoCancel(true)
                     setContentIntent(pendingIntent)
+
+                    SimpleAppUpdate.periodicCheckConfig!!.notificationStyle.notificationColor?.let { setColor(it) }
                 }
 
             return notifBuilder
