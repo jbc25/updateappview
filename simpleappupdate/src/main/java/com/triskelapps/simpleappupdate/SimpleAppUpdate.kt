@@ -10,8 +10,7 @@ import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
-import androidx.work.Operation
-import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.gms.tasks.Task
 import com.google.android.play.core.appupdate.AppUpdateInfo
@@ -20,11 +19,10 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
-import com.triskelapps.simpleappupdate.config.WorkerConfig
-import com.triskelapps.simpleappupdate.config.Configuration
 import com.triskelapps.simpleappupdate.config.NotificationStyle
 import com.triskelapps.simpleappupdate.config.PeriodicCheckConfig
 import com.triskelapps.simpleappupdate.config.UpdateBarStyle
+import com.triskelapps.simpleappupdate.config.WorkerConfig
 
 class SimpleAppUpdate(private val context: Context) {
 
@@ -55,8 +53,7 @@ class SimpleAppUpdate(private val context: Context) {
             SimpleAppUpdate.updateBarStyle = updateBarStyle
             SimpleAppUpdate.notificationStyle = periodicCheckConfig?.notificationStyle
 
-            sendRemoteLog("SimpleAppUpdate init")
-            sendRemoteLog(periodicCheckConfig.toString())
+            //sendRemoteLog("SimpleAppUpdate init")
 
             periodicCheckConfig?.let {
                 scheduleAppUpdateCheckWork(it.context, it.versionCode, it.workerConfig)
@@ -68,26 +65,25 @@ class SimpleAppUpdate(private val context: Context) {
             versionCode: Int,
             workerConfig: WorkerConfig
         ) {
+
+            //sendRemoteLog(workerConfig.toString())
+
             val constraints: Constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()
 
-            val updateAppCheckWork: PeriodicWorkRequest = PeriodicWorkRequest.Builder(
-                CheckAppUpdateWorker::class.java,
+            val updateAppCheckWork = PeriodicWorkRequestBuilder<CheckAppUpdateWorker>(
                 workerConfig.repeatInterval, workerConfig.repeatIntervalTimeUnit,
-                workerConfig.flexInterval, workerConfig.flexIntervalTimeUnit,
-            )
+                workerConfig.flexInterval, workerConfig.flexIntervalTimeUnit,)
                 .setConstraints(constraints)
                 .setInputData(Data.Builder().putInt(CheckAppUpdateWorker.VERSION_CODE, versionCode).build())
                 .build()
 
-            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                "appUpdateCheckWork",
-                ExistingPeriodicWorkPolicy.UPDATE, updateAppCheckWork
-            ).state.observeForever { state: Operation.State ->
 
-                sendRemoteLog("Periodic work status: $state")
-            }
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                "SimpleAppUpdateCheckWork",
+                ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE, updateAppCheckWork
+            )
         }
 
     }

@@ -1,13 +1,20 @@
 package com.triskelapps.updateappviewsample
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import com.google.common.util.concurrent.ListenableFuture
 import com.triskelapps.simpleappupdate.SimpleAppUpdate
-import com.triskelapps.simpleappupdate.SimpleAppUpdateView
 import com.triskelapps.updateappviewsample.databinding.ActivityMainBinding
+import java.util.concurrent.ExecutionException
+
 
 class MainActivity : AppCompatActivity() {
+
+    private val TAG: String = MainActivity::class.java.simpleName
 
     private lateinit var simpleAppUpdate: SimpleAppUpdate
     private lateinit var binding: ActivityMainBinding
@@ -24,40 +31,54 @@ class MainActivity : AppCompatActivity() {
         checkUpdateBarStyle(false)
 
         binding.tvAppVersion.text = BuildConfig.VERSION_NAME
+
+        binding.btnWorkerStatus.setOnClickListener {
+            binding.btnWorkerStatus.text = getWorkerStatus("SimpleAppUpdateCheckWork").toString()
+        }
+
+        binding.btnCancelWorker.setOnClickListener {
+            WorkManager.getInstance(this).cancelUniqueWork("SimpleAppUpdateCheckWork")
+        }
+    }
+
+    private fun getWorkerStatus(uniqueName: String): WorkInfo.State? {
+        val instance: WorkManager = WorkManager.getInstance(this)
+        val statuses: ListenableFuture<List<WorkInfo>> = instance.getWorkInfosForUniqueWork(uniqueName)
+        try {
+            val workInfoList: List<WorkInfo> = statuses.get()
+            Log.i(TAG, "getWorkerStatus: workInfoList count: ${workInfoList.size}")
+            for (workInfo in workInfoList) {
+                Log.i(TAG, "getWorkerStatus: workInfo: $workInfo")
+                return workInfo.state
+            }
+        } catch (e: ExecutionException) {
+            e.printStackTrace()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+        return null
     }
 
     private fun configureManualCheck() {
         binding.btnCheckForUpdate.setOnClickListener {
-            checkForUpdate()
-        }
-    }
+            binding.tvManualCheck.setText(R.string.checking)
 
-    private fun checkForUpdate() {
-
-        binding.btnCheckForUpdate.setText(R.string.checking)
-
-        simpleAppUpdate.setUpdateAvailableListener {
-            binding.tvManualCheck.setText(R.string.update_available)
-            binding.btnCheckForUpdate.setText(R.string.launch_update)
-            binding.btnCheckForUpdate.setOnClickListener {
-                binding.tvManualCheck.setText(R.string.manual_ckeck)
-                binding.btnCheckForUpdate.setText(R.string.check_for_update)
-                simpleAppUpdate.launchUpdate()
+            simpleAppUpdate.setUpdateAvailableListener {
+                binding.tvManualCheck.setText(R.string.update_available)
+                binding.btnUpdate.visibility = View.VISIBLE
+                binding.btnUpdate.setOnClickListener {
+                    simpleAppUpdate.launchUpdate()
+                }
             }
+
+            simpleAppUpdate.setErrorListener { error ->
+                binding.tvManualCheck.text = "Error: $error"
+            }
+
+            simpleAppUpdate.checkUpdateAvailable()
         }
-
-        simpleAppUpdate.setErrorListener { error ->
-            binding.tvManualCheck.text = "Error: $error"
-            binding.btnCheckForUpdate.setText(R.string.check_for_update)
-            binding.btnCheckForUpdate.setOnClickListener { checkForUpdate() }
-
-        }
-
-        simpleAppUpdate.setFinishListener {
-        }
-
-        simpleAppUpdate.checkUpdateAvailable()
     }
+
 
     private fun checkUpdateBarStyle(showBar: Boolean) {
         binding.simpleAppUpdateView.visibility = if (showBar) View.VISIBLE else View.GONE

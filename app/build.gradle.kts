@@ -11,8 +11,8 @@ android {
         applicationId = "com.triskelapps.updateappviewsample"
         minSdk = 21
         targetSdk = 34
-        versionCode = 117
-        versionName = "1.1.7"
+        versionCode = 122
+        versionName = "1.2.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -42,4 +42,8 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
+
+
+    implementation(libs.androidx.work.runtime)
+    implementation(libs.androidx.core.ktx)
 }

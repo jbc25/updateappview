@@ -60,7 +60,7 @@ afterEvaluate {
 
                 groupId = "com.triskelapps"
                 artifactId = "simpleappupdate"
-                version = "0.0.6"
+                version = "0.0.7"
 
             }
         }
