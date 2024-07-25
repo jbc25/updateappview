@@ -77,7 +77,7 @@ class SimpleAppUpdate(private val context: Context) {
 
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                "SimpleAppUpdateCheckWork",
+                "${context.packageName}.SimpleAppUpdateCheckWork",
                 ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE, updateAppCheckWork
             )
         }
