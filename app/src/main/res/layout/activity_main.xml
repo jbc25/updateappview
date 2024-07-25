@@ -12,7 +12,10 @@
     <com.triskelapps.simpleappupdate.SimpleAppUpdateView
         android:id="@+id/simple_app_update_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        app:backgroundColor="#454545"
+        app:foregroundColor="#FFD600"
+        app:textStyle="@style/TextBase" />
 
     <TextView
         android:layout_width="wrap_content"

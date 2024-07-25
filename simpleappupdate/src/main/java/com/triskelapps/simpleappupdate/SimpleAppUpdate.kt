@@ -21,7 +21,6 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.triskelapps.simpleappupdate.config.NotificationStyle
 import com.triskelapps.simpleappupdate.config.PeriodicCheckConfig
-import com.triskelapps.simpleappupdate.config.UpdateBarStyle
 import com.triskelapps.simpleappupdate.config.WorkerConfig
 
 class SimpleAppUpdate(private val context: Context) {
@@ -40,17 +39,14 @@ class SimpleAppUpdate(private val context: Context) {
 
     companion object {
 
-        var updateBarStyle: UpdateBarStyle? = null
         var notificationStyle: NotificationStyle? = null
 
         @JvmStatic
         @JvmOverloads
         fun init(
-            updateBarStyle: UpdateBarStyle? = null,
             periodicCheckConfig: PeriodicCheckConfig? = null,
         ) {
 
-            SimpleAppUpdate.updateBarStyle = updateBarStyle
             SimpleAppUpdate.notificationStyle = periodicCheckConfig?.notificationStyle
 
             //sendRemoteLog("SimpleAppUpdate init")
