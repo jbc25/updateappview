@@ -11,6 +11,7 @@ import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.google.android.gms.tasks.Task
 import com.google.android.play.core.appupdate.AppUpdateInfo
@@ -19,9 +20,10 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
+import com.google.common.util.concurrent.ListenableFuture
 import com.triskelapps.simpleappupdate.config.NotificationStyle
-import com.triskelapps.simpleappupdate.config.PeriodicCheckConfig
 import com.triskelapps.simpleappupdate.config.WorkerConfig
+import java.util.concurrent.ExecutionException
 
 class SimpleAppUpdate(private val context: Context) {
 
@@ -39,52 +41,44 @@ class SimpleAppUpdate(private val context: Context) {
 
     companion object {
 
-        var notificationStyle: NotificationStyle? = null
+        val uniqueWorkName = "SimpleAppUpdateCheckWork"
 
         @JvmStatic
         @JvmOverloads
-        fun init(
-            periodicCheckConfig: PeriodicCheckConfig? = null,
-        ) {
-
-            SimpleAppUpdate.notificationStyle = periodicCheckConfig?.notificationStyle
-
-            //sendRemoteLog("SimpleAppUpdate init")
-
-            periodicCheckConfig?.let {
-                scheduleAppUpdateCheckWork(it.context, it.versionCode, it.workerConfig)
-            }
-        }
-
-        private fun scheduleAppUpdateCheckWork(
+        fun schedulePeriodicChecks(
             context: Context,
             versionCode: Int,
-            workerConfig: WorkerConfig
+            notificationStyle: NotificationStyle,
+            workerConfig: WorkerConfig = WorkerConfig(),
         ) {
 
-            //sendRemoteLog(workerConfig.toString())
+            saveLog(context, "Scheduling periodic checks - $workerConfig")
 
             val constraints: Constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+
+            val data = Data.Builder()
+                .putInt(CheckAppUpdateWorker.VERSION_CODE, versionCode)
+                .putInt(CheckAppUpdateWorker.NOTIFICATION_ICON, notificationStyle.notificationIcon)
+                .putInt(CheckAppUpdateWorker.NOTIFICATION_COLOR, notificationStyle.notificationColor ?: -1)
                 .build()
 
             val updateAppCheckWork = PeriodicWorkRequestBuilder<CheckAppUpdateWorker>(
                 workerConfig.repeatInterval, workerConfig.repeatIntervalTimeUnit,
                 workerConfig.flexInterval, workerConfig.flexIntervalTimeUnit,)
                 .setConstraints(constraints)
-                .setInputData(Data.Builder().putInt(CheckAppUpdateWorker.VERSION_CODE, versionCode).build())
+                .setInputData(data)
                 .build()
 
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                "${context.packageName}.SimpleAppUpdateCheckWork",
-                ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE, updateAppCheckWork
+                "${context.packageName}.$uniqueWorkName",
+                ExistingPeriodicWorkPolicy.UPDATE, updateAppCheckWork
             )
+
         }
 
-    }
-
-    init {
     }
 
     fun setUpdateAvailableListener(updateAvailableListener: () -> Unit = {}) {
@@ -109,13 +103,16 @@ class SimpleAppUpdate(private val context: Context) {
                     appUpdateInfo = task.result
                     if (appUpdateInfo!!.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
                         onUpdateAvailable()
+                        saveLog(context, "onUpdateAvailable")
                     }
                 } else {
-                    Log.e(TAG, "checkUpdateAvailable: ", task.exception)
                     onCheckUpdateError(task.exception.toString())
+                    Log.e(TAG, "checkUpdateAvailable: ", task.exception)
+                    saveLog(context, "onCheckUpdateError: ${task.exception}")
                 }
 
                 onCheckUpdateFinish()
+                saveLog(context, "onFinish")
 
             }
     }
@@ -164,6 +161,35 @@ class SimpleAppUpdate(private val context: Context) {
             }
         }
     }
+
+
+    fun getWorkerStatus(): WorkInfo.State? {
+        val instance: WorkManager = WorkManager.getInstance(context)
+        val statuses: ListenableFuture<List<WorkInfo>> = instance.getWorkInfosForUniqueWork(
+            "${context.packageName}.$uniqueWorkName"
+        )
+
+        try {
+            val workInfoList: List<WorkInfo> = statuses.get()
+            Log.i(TAG, "getWorkerStatus: workInfoList count: ${workInfoList.size}")
+            for (workInfo in workInfoList) {
+                Log.i(TAG, "getWorkerStatus: workInfo: $workInfo")
+                return workInfo.state
+            }
+        } catch (e: ExecutionException) {
+            e.printStackTrace()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
+    fun cancelWorker() {
+        WorkManager.getInstance(context)
+            .cancelUniqueWork("${context.packageName}.$uniqueWorkName")
+    }
+
+    fun getLogs() = getLogs(context)
 
 
 }

@@ -14,10 +14,14 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 
 
-class NotificationUtils(private val context: Context) {
+class NotificationUtils(
+    private val context: Context,
+    private val notificationIcon: Int,
+    private val notificationColor: Int
+) {
 
     private val channelId = "channel_update_app"
-    private val notificationId = 5
+    private val notificationId = 260724
 
     fun showNotification(packageName: String) {
 
@@ -30,7 +34,7 @@ class NotificationUtils(private val context: Context) {
             val notificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.notify(notificationId, notification)
-            //sendRemoteLog("Notification sent")
+            saveLog(context, "Notification sent")
         }
 
     }
@@ -64,11 +68,11 @@ class NotificationUtils(private val context: Context) {
             val notifBuilder =
                 NotificationCompat.Builder(context, channelId).apply {
                     setSound(defaultSoundUri)
-                    setSmallIcon(SimpleAppUpdate.notificationStyle!!.notificationIcon)
+                    setSmallIcon(notificationIcon)
                     setAutoCancel(true)
                     setContentIntent(pendingIntent)
 
-                    SimpleAppUpdate.notificationStyle!!.notificationColor?.let { setColor(it) }
+                    notificationColor.takeIf { it != -1 }?.let { setColor(it) }
                 }
 
             return notifBuilder

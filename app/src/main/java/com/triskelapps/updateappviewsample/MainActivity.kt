@@ -33,31 +33,18 @@ class MainActivity : AppCompatActivity() {
         binding.tvAppVersion.text = BuildConfig.VERSION_NAME
 
         binding.btnWorkerStatus.setOnClickListener {
-            binding.btnWorkerStatus.text = getWorkerStatus("SimpleAppUpdateCheckWork").toString()
+            binding.btnWorkerStatus.text = simpleAppUpdate.getWorkerStatus()?.toString()
         }
 
         binding.btnCancelWorker.setOnClickListener {
-            WorkManager.getInstance(this).cancelUniqueWork("SimpleAppUpdateCheckWork")
+            simpleAppUpdate.cancelWorker()
+        }
+
+        binding.btnUpdateLogs.setOnClickListener {
+            binding.tvLogs.text = simpleAppUpdate.getLogs()
         }
     }
 
-    private fun getWorkerStatus(uniqueName: String): WorkInfo.State? {
-        val instance: WorkManager = WorkManager.getInstance(this)
-        val statuses: ListenableFuture<List<WorkInfo>> = instance.getWorkInfosForUniqueWork(uniqueName)
-        try {
-            val workInfoList: List<WorkInfo> = statuses.get()
-            Log.i(TAG, "getWorkerStatus: workInfoList count: ${workInfoList.size}")
-            for (workInfo in workInfoList) {
-                Log.i(TAG, "getWorkerStatus: workInfo: $workInfo")
-                return workInfo.state
-            }
-        } catch (e: ExecutionException) {
-            e.printStackTrace()
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
-        }
-        return null
-    }
 
     private fun configureManualCheck() {
         binding.btnCheckForUpdate.setOnClickListener {

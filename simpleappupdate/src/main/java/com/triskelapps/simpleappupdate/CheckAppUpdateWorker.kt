@@ -16,6 +16,9 @@ class CheckAppUpdateWorker(context: Context, workerParams: WorkerParameters) :
     private val TAG: String = CheckAppUpdateWorker::class.java.simpleName
     private val PREF_LAST_VERSION_NOTIFIED = "pref_last_version_notified"
 
+    private var notificationIcon: Int = -1
+    private var notificationColor: Int = -1
+
     val packageName: String = context.packageName
 
     private val simpleAppUpdate = SimpleAppUpdate(context)
@@ -23,17 +26,20 @@ class CheckAppUpdateWorker(context: Context, workerParams: WorkerParameters) :
 
     companion object {
         val VERSION_CODE = "version_code"
+        val NOTIFICATION_ICON = "notification_icon"
+        val NOTIFICATION_COLOR = "notification_color"
     }
 
     override suspend fun doWork(): Result {
-        //sendRemoteLog("Start worker. ")
 
         prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         val lastVersionNotified = prefs.getInt(PREF_LAST_VERSION_NOTIFIED, 0)
 
         val versionCode = inputData.getInt(VERSION_CODE, -1)
+        notificationIcon = inputData.getInt(NOTIFICATION_ICON, -1)
+        notificationColor = inputData.getInt(NOTIFICATION_COLOR, -1)
 
-        //sendRemoteLog("Start worker. lastVersionNotified: $lastVersionNotified, version code: $versionCode")
+        saveLog(applicationContext, "Worker started. lastVersionNotified: $lastVersionNotified, version code: $versionCode")
 
         return if (lastVersionNotified < versionCode) {
             checkAppUpdateAvailable()
@@ -45,11 +51,9 @@ class CheckAppUpdateWorker(context: Context, workerParams: WorkerParameters) :
 
     private suspend fun checkAppUpdateAvailable(): Result = suspendCoroutine { continuation ->
         simpleAppUpdate.setUpdateAvailableListener {
-            //sendRemoteLog("onUpdateAvailable. sending notification")
             prepareAndShowNotification()
         }
         simpleAppUpdate.setFinishListener {
-            //sendRemoteLog("onFinish")
             continuation.resume(Result.success())
         }
         simpleAppUpdate.checkUpdateAvailable()
@@ -57,7 +61,7 @@ class CheckAppUpdateWorker(context: Context, workerParams: WorkerParameters) :
 
     private fun prepareAndShowNotification() {
 
-        NotificationUtils(applicationContext).showNotification(packageName)
+        NotificationUtils(applicationContext, notificationIcon, notificationColor).showNotification(packageName)
 
         val versionCode = inputData.getInt(VERSION_CODE, -1)
         prefs.edit().putInt(PREF_LAST_VERSION_NOTIFIED, versionCode).apply()

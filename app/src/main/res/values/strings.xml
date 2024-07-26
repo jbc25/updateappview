@@ -7,4 +7,7 @@
     <string name="update_available">Update available!</string>
     <string name="launch_update">Launch update</string>
     <string name="update">Update</string>
+    <string name="update_logs">Update logs</string>
+    <string name="cancel_work">Cancel Work</string>
+    <string name="worker_status">Worker satus</string>
 </resources>
