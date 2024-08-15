@@ -113,7 +113,7 @@ class SimpleAppUpdateView @JvmOverloads constructor(
 
 
     private fun checkUpdateAvailable() {
-        simpleAppUpdate.checkUpdateAvailable()
+        simpleAppUpdate.checkUpdateAvailable(TAG)
     }
 
     companion object {

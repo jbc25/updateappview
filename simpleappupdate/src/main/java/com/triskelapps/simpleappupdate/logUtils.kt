@@ -6,14 +6,14 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-fun saveLog(context: Context, text: String) {
+fun saveLog(context: Context, text: String, tag: String) {
 
     val logs = getLogs(context)
     val logArray = logs.split("\n").toMutableList()
 
     val datetime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
-    logArray.add("$datetime: $text")
+    logArray.add("$datetime - $tag - $text")
 
     if (logArray.size > 100) {
         logArray.removeAt(0)

@@ -39,7 +39,7 @@ class CheckAppUpdateWorker(context: Context, workerParams: WorkerParameters) :
         notificationIcon = inputData.getInt(NOTIFICATION_ICON, -1)
         notificationColor = inputData.getInt(NOTIFICATION_COLOR, -1)
 
-        saveLog(applicationContext, "Worker started. lastVersionNotified: $lastVersionNotified, version code: $versionCode")
+        saveLog(applicationContext, "Worker started. lastVersionNotified: $lastVersionNotified, version code: $versionCode", TAG)
 
         return if (lastVersionNotified < versionCode) {
             checkAppUpdateAvailable()
@@ -56,7 +56,7 @@ class CheckAppUpdateWorker(context: Context, workerParams: WorkerParameters) :
         simpleAppUpdate.setFinishListener {
             continuation.resume(Result.success())
         }
-        simpleAppUpdate.checkUpdateAvailable()
+        simpleAppUpdate.checkUpdateAvailable(TAG)
     }
 
     private fun prepareAndShowNotification() {

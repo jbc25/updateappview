@@ -20,6 +20,7 @@ class NotificationUtils(
     private val notificationColor: Int
 ) {
 
+    private val TAG: String = NotificationUtils::class.java.simpleName
     private val channelId = "channel_update_app"
     private val notificationId = 260724
 
@@ -34,7 +35,7 @@ class NotificationUtils(
             val notificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.notify(notificationId, notification)
-            saveLog(context, "Notification sent")
+            saveLog(context, "Notification sent", TAG)
         }
 
     }

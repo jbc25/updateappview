@@ -27,7 +27,6 @@ import java.util.concurrent.ExecutionException
 
 class SimpleAppUpdate(private val context: Context) {
 
-    private val TAG: String = SimpleAppUpdate::class.java.simpleName
 
     val TEMPLATE_URL_GOOGLE_PLAY_APP_HTTP: String =
         "https://play.google.com/store/apps/details?id=%s"
@@ -41,6 +40,8 @@ class SimpleAppUpdate(private val context: Context) {
 
     companion object {
 
+        private val TAG: String = SimpleAppUpdate::class.java.simpleName
+
         val uniqueWorkName = "SimpleAppUpdateCheckWork"
 
         @JvmStatic
@@ -52,7 +53,7 @@ class SimpleAppUpdate(private val context: Context) {
             workerConfig: WorkerConfig = WorkerConfig(),
         ) {
 
-            saveLog(context, "Scheduling periodic checks - $workerConfig")
+            saveLog(context, "Scheduling periodic checks - $workerConfig", TAG)
 
             val constraints: Constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -72,10 +73,12 @@ class SimpleAppUpdate(private val context: Context) {
                 .build()
 
 
-            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            val workManager = WorkManager.getInstance(context)
+            workManager.enqueueUniquePeriodicWork(
                 "${context.packageName}.$uniqueWorkName",
                 ExistingPeriodicWorkPolicy.UPDATE, updateAppCheckWork
             )
+
 
         }
 
@@ -93,7 +96,9 @@ class SimpleAppUpdate(private val context: Context) {
         this.onCheckUpdateError = onCheckUpdateError
     }
 
-    fun checkUpdateAvailable() {
+    fun checkUpdateAvailable(logTag: String = TAG) {
+
+        saveLog(context, "Checking update...", logTag)
 
         val appUpdateInfoTask: Task<AppUpdateInfo> = appUpdateManager.appUpdateInfo
 
@@ -103,16 +108,16 @@ class SimpleAppUpdate(private val context: Context) {
                     appUpdateInfo = task.result
                     if (appUpdateInfo!!.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
                         onUpdateAvailable()
-                        saveLog(context, "onUpdateAvailable")
+                        saveLog(context, "onUpdateAvailable", logTag)
                     }
                 } else {
                     onCheckUpdateError(task.exception.toString())
                     Log.e(TAG, "checkUpdateAvailable: ", task.exception)
-                    saveLog(context, "onCheckUpdateError: ${task.exception}")
+                    saveLog(context, "onCheckUpdateError: ${task.exception}", logTag)
                 }
 
                 onCheckUpdateFinish()
-                saveLog(context, "onFinish")
+                saveLog(context, "onFinish", logTag)
 
             }
     }
@@ -163,7 +168,7 @@ class SimpleAppUpdate(private val context: Context) {
     }
 
 
-    fun getWorkerStatus(): WorkInfo.State? {
+    fun getWorkStatus(): WorkInfo.State? {
         val instance: WorkManager = WorkManager.getInstance(context)
         val statuses: ListenableFuture<List<WorkInfo>> = instance.getWorkInfosForUniqueWork(
             "${context.packageName}.$uniqueWorkName"
@@ -184,9 +189,9 @@ class SimpleAppUpdate(private val context: Context) {
         return null
     }
 
-    fun cancelWorker() {
+    fun cancelWork(uniqueName: String = "${context.packageName}.$uniqueWorkName") {
         WorkManager.getInstance(context)
-            .cancelUniqueWork("${context.packageName}.$uniqueWorkName")
+            .cancelUniqueWork(uniqueName)
     }
 
     fun getLogs() = getLogs(context)

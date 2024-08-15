@@ -1,15 +1,10 @@
 package com.triskelapps.updateappviewsample
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.work.WorkInfo
-import androidx.work.WorkManager
-import com.google.common.util.concurrent.ListenableFuture
 import com.triskelapps.simpleappupdate.SimpleAppUpdate
 import com.triskelapps.updateappviewsample.databinding.ActivityMainBinding
-import java.util.concurrent.ExecutionException
 
 
 class MainActivity : AppCompatActivity() {
@@ -33,16 +28,21 @@ class MainActivity : AppCompatActivity() {
         binding.tvAppVersion.text = BuildConfig.VERSION_NAME
 
         binding.btnWorkerStatus.setOnClickListener {
-            binding.btnWorkerStatus.text = simpleAppUpdate.getWorkerStatus()?.toString()
+            binding.btnWorkerStatus.text = simpleAppUpdate.getWorkStatus()?.toString()
         }
 
         binding.btnCancelWorker.setOnClickListener {
-            simpleAppUpdate.cancelWorker()
+            simpleAppUpdate.cancelWork()
         }
 
         binding.btnUpdateLogs.setOnClickListener {
             binding.tvLogs.text = simpleAppUpdate.getLogs()
         }
+
+
+        simpleAppUpdate.cancelWork("appUpdateCheckWork")
+        simpleAppUpdate.cancelWork("SimpleAppUpdateCheckWork")
+
     }
 
 
@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
                 binding.tvManualCheck.text = "Error: $error"
             }
 
-            simpleAppUpdate.checkUpdateAvailable()
+            simpleAppUpdate.checkUpdateAvailable(TAG)
         }
     }
 
