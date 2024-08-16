@@ -28,9 +28,9 @@ import java.util.concurrent.ExecutionException
 class SimpleAppUpdate(private val context: Context) {
 
 
-    val TEMPLATE_URL_GOOGLE_PLAY_APP_HTTP: String =
+    private val TEMPLATE_URL_GOOGLE_PLAY_APP_HTTP: String =
         "https://play.google.com/store/apps/details?id=%s"
-    val TEMPLATE_URL_GOOGLE_PLAY_APP_DIRECT: String = "market://details?id=%s"
+    private val TEMPLATE_URL_GOOGLE_PLAY_APP_DIRECT: String = "market://details?id=%s"
 
     private val appUpdateManager: AppUpdateManager = AppUpdateManagerFactory.create(context)
     private var appUpdateInfo: AppUpdateInfo? = null
@@ -42,7 +42,7 @@ class SimpleAppUpdate(private val context: Context) {
 
         private val TAG: String = SimpleAppUpdate::class.java.simpleName
 
-        val uniqueWorkName = "SimpleAppUpdateCheckWork"
+        const val UNIQUE_WORK_NAME = "SimpleAppUpdateCheckWork"
 
         @JvmStatic
         @JvmOverloads
@@ -75,7 +75,7 @@ class SimpleAppUpdate(private val context: Context) {
 
             val workManager = WorkManager.getInstance(context)
             workManager.enqueueUniquePeriodicWork(
-                "${context.packageName}.$uniqueWorkName",
+                "${context.packageName}.$UNIQUE_WORK_NAME",
                 ExistingPeriodicWorkPolicy.UPDATE, updateAppCheckWork
             )
 
@@ -96,6 +96,7 @@ class SimpleAppUpdate(private val context: Context) {
         this.onCheckUpdateError = onCheckUpdateError
     }
 
+    @JvmOverloads
     fun checkUpdateAvailable(logTag: String = TAG) {
 
         saveLog(context, "Checking update...", logTag)
@@ -171,7 +172,7 @@ class SimpleAppUpdate(private val context: Context) {
     fun getWorkStatus(): WorkInfo.State? {
         val instance: WorkManager = WorkManager.getInstance(context)
         val statuses: ListenableFuture<List<WorkInfo>> = instance.getWorkInfosForUniqueWork(
-            "${context.packageName}.$uniqueWorkName"
+            "${context.packageName}.$UNIQUE_WORK_NAME"
         )
 
         try {
@@ -189,9 +190,9 @@ class SimpleAppUpdate(private val context: Context) {
         return null
     }
 
-    fun cancelWork(uniqueName: String = "${context.packageName}.$uniqueWorkName") {
+    fun cancelWork() {
         WorkManager.getInstance(context)
-            .cancelUniqueWork(uniqueName)
+            .cancelUniqueWork("${context.packageName}.$UNIQUE_WORK_NAME")
     }
 
     fun getLogs() = getLogs(context)
